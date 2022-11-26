@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId, ObjectID } = require('mongodb');
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const app = express();
@@ -52,6 +52,25 @@ async function run() {
             res.send({ isBuyer: user?.role === 'buyer' });
         })
 
+        app.get('/users', async (req, res) => {
+            const query = {};
+            const users = await usersCollection.find(query).toArray();
+            res.send(users);
+        });
+
+        app.get('/users/seller', async (req, res) => {
+            const query = { role: 'seller' };
+            const options = await usersCollection.find(query).toArray()
+            console.log(options);
+            res.send(options);
+        })
+        app.get('/users/buyer', async (req, res) => {
+            const query = { role: 'buyer' };
+            const options = await usersCollection.find(query).toArray()
+            console.log(options);
+            res.send(options);
+        })
+
 
         app.post('/users', async (req, res) => {
             const user = req.body;
@@ -64,6 +83,13 @@ async function run() {
             const result = await usersCollection.insertOne(user);
             res.send(result);
         });
+
+        app.delete("/users/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await usersCollection.deleteOne(query)
+            res.send(result);
+        })
     }
     finally {
 
