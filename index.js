@@ -19,10 +19,17 @@ async function run() {
     try {
         const categoriesCollection = client.db("watch-bazar").collection("categories");
         const usersCollection = client.db('watch-bazar').collection('users');
+        const watchCollection = client.db('watch-bazar').collection('watchCategory')
+        const myOrderCollection = client.db('watch-bazar').collection('myOrders')
 
         app.get("/categories", async (req, res) => {
             const query = {}
             const options = await categoriesCollection.find(query).toArray()
+            res.send(options);
+        })
+        app.get("/wathcCategories", async (req, res) => {
+            const query = {}
+            const options = await watchCollection.find(query).toArray()
             res.send(options);
         })
 
@@ -30,6 +37,12 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
             const option = await categoriesCollection.findOne(query)
+            res.send(option)
+        })
+        app.get("/wathcCategories/:name", async (req, res) => {
+            const name = req.params.name;
+            const query = { name: name }
+            const option = await watchCollection.find(query).toArray()
             res.send(option)
         })
 
@@ -57,6 +70,12 @@ async function run() {
             const users = await usersCollection.find(query).toArray();
             res.send(users);
         });
+        /////
+        app.get('/booking', async (req, res) => {
+            const query = {};
+            const users = await myOrderCollection.find(query).toArray();
+            res.send(users);
+        });
 
         app.get('/users/seller', async (req, res) => {
             const query = { role: 'seller' };
@@ -75,6 +94,11 @@ async function run() {
         app.post('/users', async (req, res) => {
             const user = req.body;
             const result = await usersCollection.insertOne(user);
+            res.send(result);
+        });
+        app.post('/booking', async (req, res) => {
+            const user = req.body;
+            const result = await myOrderCollection.insertOne(user);
             res.send(result);
         });
         app.put('/users', async (req, res) => {
