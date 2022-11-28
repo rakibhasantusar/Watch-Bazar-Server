@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion, ObjectId, ObjectID } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId, } = require('mongodb');
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const app = express();
@@ -13,7 +13,8 @@ app.use(express.json())
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.79y2pqi.mongodb.net/?retryWrites=true&w=majority`;
 console.log(uri);
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 }, { connectTimeoutMS: 30000 }, { keepAlive: 1 });
 
 async function run() {
     try {
@@ -70,7 +71,6 @@ async function run() {
             const users = await usersCollection.find(query).toArray();
             res.send(users);
         });
-        /////
         app.get('/booking', async (req, res) => {
             const query = {};
             const users = await myOrderCollection.find(query).toArray();
@@ -96,6 +96,11 @@ async function run() {
             const result = await usersCollection.insertOne(user);
             res.send(result);
         });
+        app.post("/wathcCategories", async (req, res) => {
+            const product = req.body;
+            const options = await watchCollection.insertOne(product)
+            res.send(options);
+        })
         app.post('/booking', async (req, res) => {
             const user = req.body;
             const result = await myOrderCollection.insertOne(user);
@@ -112,6 +117,12 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await usersCollection.deleteOne(query)
+            res.send(result);
+        })
+        app.delete("/wathcCategories/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await watchCollection.deleteOne(query)
             res.send(result);
         })
     }
